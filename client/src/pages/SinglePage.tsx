@@ -45,7 +45,7 @@ function SinglePage() {
 
   return (
     <div className="detail">
-      <Link to={'/'}>Go Back</Link>
+      <Link to="/" state={{}}>Go Back</Link>
       <h2>Item Details</h2>
       <p>ID: {item.id}</p>
       <p>Name: {item.name}</p>

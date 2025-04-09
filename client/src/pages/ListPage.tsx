@@ -1,10 +1,14 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useData from './useData';
 
+import styles from './ListPage.module.scss';
+
 function ListPage() {
-  const [search, setSearch] = useState('');
+  const location = useLocation();
+  const [search, setSearch] = useState(location.state?.search || '');
+  const [activeId, setActiveId] = useState<number | null>(location.state?.activeId || null);
   const [filtered, setFiltered] = useState<any[]>([]);
   const { items, isLoading, error } = useData();
   const navigate = useNavigate();
@@ -12,11 +16,18 @@ function ListPage() {
   useEffect(() => {
     if (items && Array.isArray(items)) {
       const list = search.trim()
-        ? items.filter((item: any) => item.id.toString().includes(search.trim()))
+        ? items.filter((item: any) =>
+            item.id.toString().includes(search.trim())
+          )
         : items;
       setFiltered(list);
     }
   }, [items, search]);
+
+  const handleClick = (item: any) => {
+    setActiveId(item.id);
+    navigate(`/${item.id}`, { state: { search, activeId: item.id } });
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -35,7 +46,11 @@ function ListPage() {
       ) : (
         <ul>
           {filtered.map((item) => (
-            <li key={item.id} onClick={() => navigate(`/${item.id}`)}>
+            <li
+              key={item.id}
+              onClick={() => handleClick(item)}
+              className={activeId === item.id ? styles['active-item'] : ''}
+            >
               {item.id}: {item.description}
             </li>
           ))}

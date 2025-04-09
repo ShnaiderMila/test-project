@@ -1,0 +1,11 @@
+.active-item {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+li:hover {
+  cursor: pointer;
+  background-color: #e8e8e8;
+}
