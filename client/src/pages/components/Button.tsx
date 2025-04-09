@@ -1,13 +1,9 @@
-import React, { memo, useCallback } from 'react';
+import React from 'react';
 
-const Button: React.FC<any> = ({ onClick, id, disabled, children }) => {
-	const handleClick = useCallback(() => {
-		onClick(id);
-	}, []);
-	
-	return (
-		<button onClick={handleClick} disabled={disabled}>{children}</button>
-	)
-}
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export default memo(Button);
+const Button: React.FC<ButtonProps> = ({ children, ...props }) => {
+  return <button {...props}>{children}</button>;
+};
+
+export default Button;

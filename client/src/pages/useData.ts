@@ -11,13 +11,13 @@ function useData() {
     setError(null);
 
     fetch(`${process.env.API_URL}/items`)
-      .then(res => {
+      .then((res) => {
         if (res.status === 403) throw new Error('Access forbidden (403)');
         if (!res.ok) throw new Error('Failed to fetch items');
         return res.json();
       })
-      .then(data => setItems(data))
-      .catch(err => setError(err.message))
+      .then((data) => setItems(data))
+      .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
   };
 
