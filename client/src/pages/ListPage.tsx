@@ -1,63 +1,46 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ListItem } from './components';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useData from './useData';
-import useSort from './useSort';
-
-const SubTitle: React.FC<any> = ({children}) => (
-    <h2 className={'list-subtitle'}>Active Item ID: {children}</h2>
-)
 
 function ListPage() {
-    const items = useData();
-    const [sortedItems, sortBy, handleSortClick] = useSort(items);
-    
-    const [activeItemId,  setActiveItemId] = useState<any>(null);
-    const [filteredItems, setFilteredItems] = useState<any[]>([]);
-    const [query, setQuery] = useState<string>('');
-    
-    const activeItemText = useMemo(() => activeItemId ? activeItemId : 'Empty', []);
-    
-  const handleItemClick = (id: any) => {
-    setActiveItemId(id);
-  };
-  
-  const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setQuery(event.target.value);
-  }
-    
-    useEffect(() => {
-        setFilteredItems(sortedItems);
-    }, [sortedItems]);
-  
-    useEffect(() => {
-        if (query.length > 0) {
-            setFilteredItems(filteredItems.filter(item => `${item.id}`.includes(query.toLowerCase().trimStart().trimEnd().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))));
-        }
-    }, [query, filteredItems]);
+  const [search, setSearch] = useState('');
+  const [filtered, setFiltered] = useState<any[]>([]);
+  const { items, isLoading, error } = useData();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (items && Array.isArray(items)) {
+      const list = search.trim()
+        ? items.filter((item: any) => item.id.toString().includes(search.trim()))
+        : items;
+      setFiltered(list);
+    }
+  }, [items, search]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className={'list-wrapper'}>
-        <div className="list-header">
-            <h1 className={'list-title'}>Items List</h1>
-            <SubTitle>{activeItemText}</SubTitle>
-            <button onClick={handleSortClick}>Sort ({sortBy === 'ASC' ? 'ASC' : 'DESC'})</button>
-            <input type="text" placeholder={'Filter by ID'} value={query} onChange={handleQueryChange} />
-        </div>
-        <div className="list-container">
-            <div className="list">
-                {filteredItems.length === 0 && <span>Loading...</span>}
-                {filteredItems.map((item, index) => (
-                    <ListItem
-                        key={index}
-                        isactive={activeItemId===item.id}
-                        id={item.id}
-                        name={item.name}
-                        description={item.description}
-                        onClick={handleItemClick}
-                    />
-                ))}
-            </div>
-        </div>
+    <div>
+      <h1>Items</h1>
+      <input
+        type="text"
+        placeholder="Search by ID"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      {filtered.length === 0 ? (
+        <div>No items found</div>
+      ) : (
+        <ul>
+          {filtered.map((item) => (
+            <li key={item.id} onClick={() => navigate(`/${item.id}`)}>
+              {item.id}: {item.description}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
